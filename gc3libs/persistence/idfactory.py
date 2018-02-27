@@ -147,7 +147,7 @@ class IdFactory(object):
         else:
             prefix = self._prefix
         if len(IdFactory._seqno_pool) > 0:
-            seqno = IdFactory._seqno_pool.pop()
+            seqno = IdFactory._seqno_pool.pop(0)
         else:
             seqno = self._next_id_fn()
         return self._idclass(prefix, seqno)
