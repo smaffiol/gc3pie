@@ -57,6 +57,7 @@ import time
 import tempfile
 import mimetypes
 import random
+import shutil
 
 from pkg_resources import Requirement, resource_filename
 
@@ -115,6 +116,7 @@ class GpermApplication(Application):
         inputs = dict()
         outputs = dict()
         
+        self.subject_dir = subject
         inputs[subject] = os.path.join(DEFAULT_BIDS_FOLDER,
                                        os.path.basename(subject))
 
@@ -143,14 +145,27 @@ class GpermApplication(Application):
         
         Application.__init__(
             self,
-            arguments = arguments,
+            # arguments = arguments,
+            arguments = "touch ./output/test-me",
             inputs = inputs,
             outputs = [DEFAULT_RESULT_FOLDER],
             stdout = 'gperm.log',
             join=True,
             executables = executables,
             **extra_args)    
-    
+
+    def terminated(self):
+        """
+        Move output file in 'result_dir'
+        """
+        gc3libs.log.info("Moving results from {0} to {1}".format(self.output_dir,
+                                                                 self.subject_dir))
+
+        for elem in os.listdir(self.output_dir):
+            shutil.move(os.path.join(self.output_dir,elem),
+                        os.path.join(self.subject_dir,elem))
+
+        
 class GpermScript(SessionBasedScript):
     """
     The ``gperm`` command keeps a record of jobs (submitted, executed
